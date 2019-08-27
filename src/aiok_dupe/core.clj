@@ -1,5 +1,6 @@
 (ns aiok-dupe.core
-  (:require [clojure.string :as string]))
+  (:require [clojure.string :as string]
+            [hiccup.core :refer [html]]))
 
 (def ortho-sep #"\|")
 (def meaning-sep #",")
@@ -19,11 +20,20 @@
   [coll item]
   (update coll (count (second item)) #(conj (or % {}) item)))
 
+(defn html-section
+  [heading contents]
+  (html
+    [:h2 (str heading " repetitions")]
+    [:ul
+     (for [[meaning kanji] contents]
+       [:li (str "“" meaning "”: " (string/join ", " kanji) ".")])]))
+
 (defn -main
   "Find duplicate proposed meanings in a kanji deck."
   [& args]
   (let [lines (-> "resources/aiok.txt" slurp string/split-lines)
         by-word (dissoc (reduce organize {} lines) "(kokuji)")
-        dupes-only (dissoc (reduce by-count {} by-word) 1)
-        sorted (reverse (sort dupes-only))]
-    (println (string/join "\n" sorted))))
+        dupes-only (dissoc (reduce by-count {} by-word) 1)]
+    (spit "output.htm"
+      (string/join "\n"
+        (for [item (reverse (sort dupes-only))] (apply html-section item))))))
