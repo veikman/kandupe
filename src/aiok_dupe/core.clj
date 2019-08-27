@@ -25,7 +25,7 @@
   (html
     [:h2 (str heading " repetitions")]
     [:ul
-     (for [[meaning kanji] contents]
+     (for [[meaning kanji] (sort contents)]
        [:li (str "“" meaning "”: " (string/join ", " kanji) ".")])]))
 
 (defn -main
