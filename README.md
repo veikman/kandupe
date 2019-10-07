@@ -1,4 +1,4 @@
-# `aiok-dupe`
+# `kandupe`
 
 A script to show the overlapping meanings of kanji, for educational purposes.
 

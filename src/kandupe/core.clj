@@ -1,4 +1,4 @@
-(ns aiok-dupe.core
+(ns kandupe.core
   (:require [clojure.string :as string]
             [clojure.set :refer [intersection]]
             [clojure.java.io :refer [input-stream]]
