@@ -5,6 +5,8 @@
             [hiccup.core :refer [html]]))
 
 (def inputfile "resources/kanjidic2.xml")
+(def csv-separator "\t")  ; The tab character is used by default in Anki.
+
 (def kanjidic-jouyou-grades #{1 2 3 4 5 6 8})
 
 (def whole-meaning-blacklist
@@ -44,22 +46,23 @@
     "from"
     "with"
     "one's"
-    "radical"})  ; Two different radicals generally share no meaning.
+    "counter"  ; Counting suffixes.
+    "radical"})  ; Kanji used as radicals; these share no meaning.
 
 (def word-values
   "Value multipliers for non-blacklisted words appearing in phrases."
   {"our" 0.2
-   "one" 0.5 ; Oneself or e.g. “one foot two inches”
+   "one" 0.5  ; Oneself or e.g. “one foot two inches”
    "not" 0.1
-   "two" 0.1 ; e.g. “two pieces of jade”.
-   "away" 0.4 ; e.g. “explain away”.
+   "two" 0.1  ; e.g. “two pieces of jade”.
+   "away" 0.4  ; e.g. “explain away”.
    "have" 0.2
    "into" 0.1
-   "kind" 0.2 ; “kind of”.
-   "name" 0.3 ; used in lots of proper nouns (mountains, species etc.).
+   "kind" 0.2  ; “kind of”.
+   "name" 0.3  ; Used in lots of proper nouns (mountains, species etc.).
    "over" 0.1
    "small" 0.5
-   "tree" 0.4 ; 74 different varieties.
+   "tree" 0.4  ; 74 different varieties.
    "type" 0.2
    "used" 0.1
    "very" 0.3
@@ -155,10 +158,11 @@
 (defn csv-row
   "A row of CSV for spaced-repetition applications.
   The number of stated matches is limited here, for ease of reading."
-  [[character {:keys [oneill relations]}]]
-  (string/join "|"
+  [[character {:keys [oneill meanings relations]}]]
+  (string/join csv-separator
     [character
      oneill
+     (string/join "; " (sort (keys meanings)))
      (string/join " " (take 6 (:jouyou relations)))
      (string/join " " (take 6 (:other relations)))]))
 
@@ -344,7 +348,7 @@
 (defn frequency-csv
   "Write a CSV as a byproduct."
   [filename content]
-  (write filename (string/join "\n" (map #(string/join "|" %)
+  (write filename (string/join "\n" (map #(string/join csv-separator %)
                                          (frequencies content)))))
 
 (defn work
@@ -357,11 +361,11 @@
         meanings (map-meanings-to-kanji base)
         words (into {} by-word base)
         rich (reduce-kv (partial match-kanji meanings words) base base)]
-    (frequency-csv "meaning-frequencies.csv" (keys all-meanings))
-    (frequency-csv "word-frequencies.csv" (mapcat keys (vals all-meanings)))
-    (write "article_meaningless.txt" (string/join " " (sort meaningless)))
-    (write "article_table.htm" (html-table rich))
-    (write "memo.csv" (string/join "\n" (map csv-row rich)))))
+    (frequency-csv "meaning_frequencies.csv" (keys all-meanings))
+    (frequency-csv "word_frequencies.csv" (mapcat keys (vals all-meanings)))
+    (write "spaced_repetition.csv" (string/join "\n" (map csv-row rich)))
+    (write "meaningless.txt" (string/join " " (sort meaningless)))
+    (write "table.htm" (html-table rich))))
 
 (defn read-file [] (-> inputfile slurp .getBytes input-stream xml/parse))
 

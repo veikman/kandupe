@@ -9,13 +9,33 @@ you also get [Leiningen](https://leiningen.org/).
 
 ## Usage
 
-$ lein run
-
-## Raw data
-
 Download `kanjidic2` from
 [EDRDG](http://www.edrdg.org/wiki/index.php/KANJIDIC_Project). Unzip the XML
 file as `kanjidic2.xml` in the `resources` folder of this project.
+
+Then, with $ representing your terminal prompt:
+
+$ lein run
+
+## Outputs
+
+The following files end up in the `output` folder.
+
+* `meaning_frequencies.csv`: Tab-separated table of processed meanings and
+  the number of times they appear in the input.
+* `word_frequencies.csv`: Tab-separated table of pseudo-sememe words and the
+  number of times they were extracted from processed meanings.
+* `spaced_repetition.csv`: Tab-separated table of the 6 strongest matches in
+  each category, and some other data suitable for use in a spaced-repetition
+  learning application such as Anki.
+* `meaningless.txt`: A space-separated list of all the kanji in the input that
+  are not associated with any meanings. More specifically, with no meanings
+  not tagged with a language, i.e. no English-language meanings.
+* `table.htm`: A relatively complex HTML table with complete sets of matches.
+
+To merge CSV from this application into an Anki deck, you might try applying
+`awk` or a spreadsheet `LOOKUP` function to an exported deck, then re-import
+it.
 
 ## License
 
